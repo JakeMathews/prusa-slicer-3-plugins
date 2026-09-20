@@ -13,6 +13,8 @@ set -euo pipefail
 BUNDLE_DIR="${1:?bundle dir}"
 PRIVATE_KEY="${2:?private key pem}"
 OUT_DIR="${3:-.}"
+mkdir -p "$OUT_DIR"
+OUT_DIR="$(cd "$OUT_DIR" && pwd)"
 
 BUNDLE_ID="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["id"])' "$BUNDLE_DIR/manifest.json")"
 [ "$(basename "$BUNDLE_DIR")" = "$BUNDLE_ID" ] || { echo "bundle dir must be named $BUNDLE_ID" >&2; exit 1; }
@@ -34,8 +36,6 @@ while read -r f; do
 done < "$WORK/files" > manifest.txt
 openssl dgst -sha256 -sign "$PRIVATE_KEY" -out manifest.sign manifest.txt
 
-mkdir -p "$OUT_DIR"
-OUT_DIR="$(cd "$OUT_DIR" && pwd)"
 ZIP="$OUT_DIR/$BUNDLE_ID.zip"
 rm -f "$ZIP"
 zip -q -X -r "$ZIP" . -x '.*'

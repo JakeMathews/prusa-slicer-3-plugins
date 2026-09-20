@@ -1,0 +1,13 @@
+{
+	"id": "com.github.jakemathews.benchy",
+	"name": "Benchy",
+	"license": "MIT",
+	"min_slicer_version": "3.0.0",
+	"version": "1.0.0",
+	"author": "jakemathews",
+	"description": "Adds the official #3DBenchy to the plate",
+	"repo": "https://github.com/JakeMathews/prusa-slicer-3-plugins",
+	"required_apis": {
+		"project.plugin": "1.0.0"
+	}
+}

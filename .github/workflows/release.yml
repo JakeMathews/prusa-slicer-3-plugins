@@ -1,0 +1,53 @@
+name: Release plugin bundle
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check signing key is configured
+        env:
+          KEY: ${{ secrets.PLUGIN_SIGNING_KEY }}
+        run: |
+          if [ -z "$KEY" ]; then
+            echo "::error::Repository secret PLUGIN_SIGNING_KEY is not set. Add the author's private key PEM as a secret; see README." >&2
+            exit 1
+          fi
+
+      - name: Build signed bundle
+        env:
+          KEY: ${{ secrets.PLUGIN_SIGNING_KEY }}
+        run: |
+          umask 077
+          printf '%s\n' "$KEY" > "$RUNNER_TEMP/signing.pem"
+          # The committed public key must match the private key in the secret.
+          diff <(openssl pkey -in "$RUNNER_TEMP/signing.pem" -pubout) keys/jakemathews.pem \
+            || { echo "::error::keys/jakemathews.pem does not match PLUGIN_SIGNING_KEY" >&2; exit 1; }
+          scripts/build-bundle.sh benchy/com.github.jakemathews.benchy "$RUNNER_TEMP/signing.pem" dist
+          rm -f "$RUNNER_TEMP/signing.pem"
+          cp keys/jakemathews.pem dist/
+
+      - name: Read bundle version
+        id: meta
+        run: |
+          echo "version=$(python3 -c 'import json;print(json.load(open("benchy/com.github.jakemathews.benchy/manifest.json"))["version"])')" >> "$GITHUB_OUTPUT"
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: v${{ steps.meta.outputs.version }}
+        run: |
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --title "Benchy $TAG" --target "$GITHUB_SHA" \
+              --notes "Signed PrusaSlicer 3 plugin bundle. Install: drop jakemathews.pem into the config folder's authorized_authors/, then Plugins → Install Plugin Bundle and pick the zip."
+          fi
+          gh release upload "$TAG" --clobber dist/com.github.jakemathews.benchy.zip dist/jakemathews.pem

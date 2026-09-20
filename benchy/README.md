@@ -30,8 +30,26 @@ To refresh the STLs from the official archive:
 
 ## Installing
 
-A plugin bundle is installed by putting its directory, **named exactly as the `id` in
-`manifest.json`**, into the config directory's `lua/`, then running _Plugins → Rescan_.
+### From a release (recommended)
+
+Every push to `main` publishes a signed bundle on the
+[releases page](https://github.com/JakeMathews/prusa-slicer-3-plugins/releases). PrusaSlicer
+only installs bundles whose author it already trusts, so the first install is two steps:
+
+1. Download `jakemathews.pem` from the release and put it in the `authorized_authors/`
+   folder inside PrusaSlicer's configuration folder (_Help → Show Configuration Folder_;
+   on macOS that is `~/Library/Application Support/PrusaSlicer3-dev/authorized_authors/`).
+   This is a one-time step; it trusts every bundle signed with that key.
+2. In PrusaSlicer, _Plugins → Install Plugin Bundle_ and pick
+   `com.github.jakemathews.benchy.zip`.
+
+Later releases only need step 2. The plugin lands in the `lua/` folder next to
+`authorized_authors/` and replaces any previous copy.
+
+### From a checkout (for hacking on it)
+
+Symlink the bundle directory, **named exactly as the `id` in `manifest.json`**, into the
+configuration folder's `lua/`, then _Plugins → Rescan Plugins_.
 
 macOS:
 
@@ -48,7 +66,7 @@ ln -sfn "$PWD/com.github.jakemathews.benchy" ~/.config/PrusaSlicer3-dev/lua/
 ```
 
 `PrusaSlicer3-dev` is the config directory the 3.0 alpha builds use. If yours differs,
-_Help → Show Configuration Folder_ shows the right one; the `lua/` directory goes inside it.
+_Help → Show Configuration Folder_ shows the right one.
 
 ## Using it
 

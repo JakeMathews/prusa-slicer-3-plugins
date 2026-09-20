@@ -1,3 +1,7 @@
 *.zip
 *.gcode
 .DS_Store
+dist/
+*.private.pem
+manifest.txt
+manifest.sign

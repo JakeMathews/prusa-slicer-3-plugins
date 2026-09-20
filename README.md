@@ -5,7 +5,7 @@ _Plugins_ menu.
 
 | directory | what it does |
 |---|---|
-| [`benchy/`](benchy/) | Puts the official #3DBenchy on the plate. |
+| [`benchy/`](benchy/) | Puts the official #3DBenchy on the plate: single-part, dual-print or multi-part. |
 
 ## Installing one
 
